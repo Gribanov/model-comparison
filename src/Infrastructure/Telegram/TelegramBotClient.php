@@ -27,6 +27,15 @@ class TelegramBotClient
         $this->decodeResponse($response, 'setWebhook');
     }
 
+    public function sendMessage(int|string $chatId, string $text): void
+    {
+        $response = $this->request('sendMessage', [
+            'chat_id' => $chatId,
+            'text' => $text,
+        ]);
+        $this->decodeResponse($response, 'sendMessage');
+    }
+
     private function request(string $method, array $payload = []): \Symfony\Contracts\HttpClient\ResponseInterface
     {
         if (trim($this->telegramBotToken) === '') {

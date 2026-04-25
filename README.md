@@ -61,6 +61,15 @@ The expected webhook URL shape is:
 
 The secret segment is URL-encoded before registration and route matching.
 
+## Accepted YouTube Links
+
+This version accepts regular video URLs only:
+
+- `https://www.youtube.com/watch?v=VIDEO_ID`
+- `https://youtu.be/VIDEO_ID`
+
+Shorts, playlists, channels, and non-YouTube URLs are rejected.
+
 ## Local Testing
 
 Telegram must be able to reach the webhook URL over HTTPS. For local development, point `TELEGRAM_WEBHOOK_BASE_URL` at a public tunnel or test host, then run the sync command again inside Docker.
