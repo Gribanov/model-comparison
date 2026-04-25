@@ -45,6 +45,26 @@ To watch worker logs:
 docker compose logs -f worker
 ```
 
+## Telegram Webhook
+
+Synchronize Telegram's registered webhook from inside the `app` container:
+
+```bash
+docker compose exec app php bin/console app:telegram:webhook:sync
+```
+
+The expected webhook URL shape is:
+
+```text
+{TELEGRAM_WEBHOOK_BASE_URL}/telegram/webhook/{TELEGRAM_WEBHOOK_SECRET}
+```
+
+The secret segment is URL-encoded before registration and route matching.
+
+## Local Testing
+
+Telegram must be able to reach the webhook URL over HTTPS. For local development, point `TELEGRAM_WEBHOOK_BASE_URL` at a public tunnel or test host, then run the sync command again inside Docker.
+
 ## Environment
 
 The project ships with example values in `.env` for:
@@ -58,4 +78,3 @@ The project ships with example values in `.env` for:
 - `APP_SUBTITLE_TEMP_DIR`
 
 The subtitle temp directory is resolved inside the container and defaults to `/app/var/subtitles`.
-
