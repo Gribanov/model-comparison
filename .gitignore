@@ -1,0 +1,7 @@
+/.idea/
+/.codex/
+/.env.local
+/.env.*.local
+/vendor/
+/var/
+

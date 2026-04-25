@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - app_vendor:/app/vendor
+      - app_var:/app/var
+    expose:
+      - "8000"
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    depends_on:
+      - redis
+
+  caddy:
+    image: caddy:2-alpine
+    working_dir: /app
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - app_vendor:/app/vendor
+      - app_var:/app/var
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv"]
+    depends_on:
+      - redis
+
+volumes:
+  app_vendor:
+  app_var:
+

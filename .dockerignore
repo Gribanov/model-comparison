@@ -1,0 +1,9 @@
+.git
+.idea
+.codex
+vendor
+var
+docker-compose.override.yml
+.env.local
+.env.*.local
+
