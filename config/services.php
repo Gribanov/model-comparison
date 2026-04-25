@@ -16,7 +16,8 @@ return static function (ContainerConfigurator $container): void {
         ->set('app.ytdlp_timeout', env('int:YTDLP_TIMEOUT'))
         ->set('app.temp_file_ttl', env('int:TEMP_FILE_TTL'))
         ->set('app.subtitle_temp_dir', env('APP_SUBTITLE_TEMP_DIR'))
-        ->set('app.ytdlp_bin', env('YTDLP_BIN'));
+        ->set('app.ytdlp_bin', env('YTDLP_BIN'))
+        ->set('app.bot_diagnostics_check_remote_webhook', env('bool:BOT_DIAGNOSTICS_CHECK_REMOTE_WEBHOOK'));
 
     $services = $container->services()
         ->defaults()
@@ -31,7 +32,8 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$subtitleTempDir', '%app.subtitle_temp_dir%')
         ->bind('$ytdlpBin', '%app.ytdlp_bin%')
         ->bind('$processTimeoutSeconds', '%app.ytdlp_timeout%')
-        ->bind('$tempFileTtl', '%app.temp_file_ttl%');
+        ->bind('$tempFileTtl', '%app.temp_file_ttl%')
+        ->bind('$checkRemoteWebhook', '%app.bot_diagnostics_check_remote_webhook%');
 
     $services->load('App\\', '../src/')
         ->exclude('../src/{DependencyInjection,Entity,Tests,Kernel.php}');

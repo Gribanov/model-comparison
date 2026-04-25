@@ -2,6 +2,12 @@
 
 Docker-first Symfony 8 MVP for a Telegram bot that returns subtitles for supported YouTube videos as `.srt` files.
 
+## Model information
+```aiignore
+Model:                gpt-5.4-mini (reasoning medium, summaries auto) 
+Context window:       75% left (73.4K used / 258K)                            │
+5h limit:             [██████████████░░░░░░] 69% left (resets 04:07) 
+```
 ## MVP Flow
 
 1. Telegram sends a webhook update to the Symfony app.
@@ -56,6 +62,34 @@ docker compose exec app composer install
 docker compose exec app php bin/console cache:clear
 ```
 
+## Smoke Test
+
+Run a lightweight operational check after deployment:
+
+```bash
+docker compose exec app php bin/console app:bot:diagnostics
+```
+
+This command verifies:
+
+- Telegram configuration presence
+- Redis connectivity
+- subtitle temp directory write access
+- yt-dlp binary availability
+- expected webhook URL shape
+
+If you want the command to call Telegram and compare the currently registered webhook, set:
+
+```bash
+BOT_DIAGNOSTICS_CHECK_REMOTE_WEBHOOK=1
+```
+
+Queue depth can be checked with the built-in Messenger command:
+
+```bash
+docker compose exec app php bin/console messenger:stats async
+```
+
 ## Worker
 
 The worker uses the same PHP image as `app` and consumes the `async` Messenger transport:
@@ -85,6 +119,24 @@ php bin/console app:subtitle-temp:cleanup
 ```
 
 If the cleanup command fails, the container keeps running and retries on the next cycle.
+
+## Logs
+
+Use Docker Compose logs to inspect the main operational paths:
+
+```bash
+docker compose logs -f app
+docker compose logs -f worker
+docker compose logs -f scheduler
+docker compose logs -f redis
+docker compose logs -f caddy
+```
+
+- `app` logs webhook reception, validation, queue dispatch, and webhook sync output.
+- `worker` logs yt-dlp execution, Telegram upload failures, and subtitle fallback behavior.
+- `scheduler` logs stale temp cleanup runs.
+- `redis` is useful for transport and lock connectivity issues.
+- `caddy` is useful for ingress and reverse-proxy issues.
 
 ## Webhook Sync
 
@@ -127,6 +179,8 @@ This command checks:
 - subtitle temp directory accessibility
 - lock and cleanup TTL values
 
+The doctor command is a config-oriented check. The smoke-test command above is the better end-to-end readiness probe.
+
 ## Supported YouTube Links
 
 Only regular YouTube video URLs are supported.
@@ -167,6 +221,7 @@ Example values are provided in `.env`:
 - `TEMP_FILE_TTL`
 - `YTDLP_BIN`
 - `APP_SUBTITLE_TEMP_DIR`
+- `BOT_DIAGNOSTICS_CHECK_REMOTE_WEBHOOK`
 
 Notes:
 
@@ -174,10 +229,20 @@ Notes:
 - `YTDLP_BIN` defaults to `/usr/local/bin/yt-dlp` in the container.
 - `APP_SUBTITLE_TEMP_DIR` defaults to `/app/var/subtitles` in the container.
 - `USER_JOB_LOCK_TTL` and `TEMP_FILE_TTL` are in seconds.
+- `BOT_DIAGNOSTICS_CHECK_REMOTE_WEBHOOK` defaults to `0`; set it to `1` on deployment if you want the smoke test to query Telegram directly.
 
 ## Local Testing
 
 Telegram must be able to reach the webhook URL over HTTPS. For local development, point `TELEGRAM_WEBHOOK_BASE_URL` at a public tunnel or test host, then run webhook sync again inside Docker.
+
+Queue flow verification usually looks like this:
+
+1. Start the stack.
+2. Run `docker compose exec app php bin/console app:bot:diagnostics`.
+3. Run `docker compose exec app php bin/console app:telegram:webhook:sync`.
+4. Send a real Telegram message with a supported YouTube video URL.
+5. Watch `docker compose logs -f app worker`.
+6. Confirm the worker uploads an `.srt` file back to Telegram.
 
 ## Notes
 
@@ -185,3 +250,36 @@ Telegram must be able to reach the webhook URL over HTTPS. For local development
 - The worker first tries regular subtitles, then auto-generated subtitles.
 - When no subtitles are available, the bot sends a user-friendly failure message.
 - No database is used in this MVP.
+
+## VPS Deployment via SSH
+
+The project is designed to be deployed on a VPS over SSH with Docker installed.
+
+Typical deployment flow:
+
+```bash
+ssh deploy@your-server
+git clone <your-repo-url> model-comparison
+cd model-comparison
+# create or update .env on the server
+docker compose up -d --build
+docker compose exec app php bin/console app:bot:diagnostics
+docker compose exec app php bin/console app:telegram:webhook:sync
+```
+
+If you redeploy after code changes:
+
+```bash
+ssh deploy@your-server
+cd model-comparison
+git pull
+docker compose up -d --build
+docker compose exec app php bin/console app:bot:diagnostics
+```
+
+Notes for VPS deployment:
+
+- The default compose file exposes Caddy on port `8080` for local development.
+- On a public VPS, the webhook URL must be reachable over HTTPS.
+- If you want to serve the bot directly, adjust the Caddy port mapping or place the container behind an existing reverse proxy.
+- After deployment, run `app:bot:diagnostics` before syncing the webhook.
