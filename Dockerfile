@@ -12,6 +12,7 @@ RUN apt-get update \
         ca-certificates \
         curl \
         git \
+        ffmpeg \
         libicu-dev \
         libonig-dev \
         libxml2-dev \
@@ -40,4 +41,3 @@ RUN mkdir -p /app/var/subtitles \
     && chmod +x /app/bin/console
 
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
-

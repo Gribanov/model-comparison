@@ -45,6 +45,8 @@ To watch worker logs:
 docker compose logs -f worker
 ```
 
+The worker downloads subtitles with `yt-dlp`, first trying regular subtitles and then auto-generated subtitles if needed. After a successful Telegram upload, the temporary `.srt` file and its job directory are deleted.
+
 ## Telegram Webhook
 
 Synchronize Telegram's registered webhook from inside the `app` container:
@@ -90,6 +92,7 @@ The project ships with example values in `.env` for:
 - `MESSENGER_TRANSPORT_DSN`
 - `REDIS_PASSWORD`
 - `USER_JOB_LOCK_TTL`
+- `YTDLP_TIMEOUT`
 - `YTDLP_BIN`
 - `APP_SUBTITLE_TEMP_DIR`
 

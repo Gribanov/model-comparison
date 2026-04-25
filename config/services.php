@@ -13,6 +13,7 @@ return static function (ContainerConfigurator $container): void {
         ->set('app.telegram_webhook_secret_path_segment', rawurlencode($telegramWebhookSecret))
         ->set('app.redis_dsn', env('MESSENGER_TRANSPORT_DSN'))
         ->set('app.user_job_lock_ttl', env('int:USER_JOB_LOCK_TTL'))
+        ->set('app.ytdlp_timeout', env('int:YTDLP_TIMEOUT'))
         ->set('app.subtitle_temp_dir', env('APP_SUBTITLE_TEMP_DIR'))
         ->set('app.ytdlp_bin', env('YTDLP_BIN'));
 
@@ -24,7 +25,10 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$telegramWebhookBaseUrl', '%app.telegram_webhook_base_url%')
         ->bind('$telegramWebhookSecretPathSegment', '%app.telegram_webhook_secret_path_segment%')
         ->bind('$redisDsn', '%app.redis_dsn%')
-        ->bind('$userJobLockTtl', '%app.user_job_lock_ttl%');
+        ->bind('$userJobLockTtl', '%app.user_job_lock_ttl%')
+        ->bind('$subtitleTempDir', '%app.subtitle_temp_dir%')
+        ->bind('$ytdlpBin', '%app.ytdlp_bin%')
+        ->bind('$processTimeoutSeconds', '%app.ytdlp_timeout%');
 
     $services->load('App\\', '../src/')
         ->exclude('../src/{DependencyInjection,Entity,Tests,Kernel.php}');
