@@ -16,6 +16,10 @@ class YtDlpSubtitleDownloader
 
     public function download(string $youtubeUrl): SubtitleDownloadArtifact
     {
+        if (!is_file($this->ytdlpBin) || !is_executable($this->ytdlpBin)) {
+            throw new SubtitleDownloadException(sprintf('yt-dlp binary is not executable: %s', $this->ytdlpBin));
+        }
+
         $workspace = $this->workspaceManager->createWorkspace();
 
         try {

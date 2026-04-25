@@ -24,6 +24,7 @@ return static function (ContainerConfigurator $container): void {
         ->autoconfigure()
         ->bind('$telegramBotToken', '%app.telegram_bot_token%')
         ->bind('$telegramWebhookBaseUrl', '%app.telegram_webhook_base_url%')
+        ->bind('$telegramWebhookSecret', '%app.telegram_webhook_secret%')
         ->bind('$telegramWebhookSecretPathSegment', '%app.telegram_webhook_secret_path_segment%')
         ->bind('$redisDsn', '%app.redis_dsn%')
         ->bind('$userJobLockTtl', '%app.user_job_lock_ttl%')
