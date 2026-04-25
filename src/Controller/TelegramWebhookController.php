@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Application\Telegram\HandleTelegramUpdateService;
 use JsonException;
+use Throwable;
 use Symfony\Bundle\FrameworkBundle\Attribute\AsController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,9 +29,12 @@ final readonly class TelegramWebhookController
             return new Response('', Response::HTTP_OK);
         }
 
-        $this->handleTelegramUpdateService->handle($payload);
+        try {
+            $this->handleTelegramUpdateService->handle($payload);
+        } catch (Throwable) {
+            return new Response('', Response::HTTP_OK);
+        }
 
         return new Response('', Response::HTTP_OK);
     }
 }
-

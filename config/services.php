@@ -11,6 +11,8 @@ return static function (ContainerConfigurator $container): void {
         ->set('app.telegram_webhook_base_url', env('TELEGRAM_WEBHOOK_BASE_URL'))
         ->set('app.telegram_webhook_secret', env('TELEGRAM_WEBHOOK_SECRET'))
         ->set('app.telegram_webhook_secret_path_segment', rawurlencode($telegramWebhookSecret))
+        ->set('app.redis_dsn', env('MESSENGER_TRANSPORT_DSN'))
+        ->set('app.user_job_lock_ttl', env('int:USER_JOB_LOCK_TTL'))
         ->set('app.subtitle_temp_dir', env('APP_SUBTITLE_TEMP_DIR'))
         ->set('app.ytdlp_bin', env('YTDLP_BIN'));
 
@@ -20,7 +22,9 @@ return static function (ContainerConfigurator $container): void {
         ->autoconfigure()
         ->bind('$telegramBotToken', '%app.telegram_bot_token%')
         ->bind('$telegramWebhookBaseUrl', '%app.telegram_webhook_base_url%')
-        ->bind('$telegramWebhookSecretPathSegment', '%app.telegram_webhook_secret_path_segment%');
+        ->bind('$telegramWebhookSecretPathSegment', '%app.telegram_webhook_secret_path_segment%')
+        ->bind('$redisDsn', '%app.redis_dsn%')
+        ->bind('$userJobLockTtl', '%app.user_job_lock_ttl%');
 
     $services->load('App\\', '../src/')
         ->exclude('../src/{DependencyInjection,Entity,Tests,Kernel.php}');

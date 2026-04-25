@@ -61,6 +61,12 @@ The expected webhook URL shape is:
 
 The secret segment is URL-encoded before registration and route matching.
 
+## Subtitle Jobs
+
+The bot allows only one active subtitle job per Telegram user at a time.
+
+Valid YouTube links are queued asynchronously through Symfony Messenger using the Redis-backed `async` transport. The user gets a confirmation when the job is accepted, and a friendly status message if a previous request is still running.
+
 ## Accepted YouTube Links
 
 This version accepts regular video URLs only:
@@ -83,6 +89,7 @@ The project ships with example values in `.env` for:
 - `TELEGRAM_WEBHOOK_SECRET`
 - `MESSENGER_TRANSPORT_DSN`
 - `REDIS_PASSWORD`
+- `USER_JOB_LOCK_TTL`
 - `YTDLP_BIN`
 - `APP_SUBTITLE_TEMP_DIR`
 
