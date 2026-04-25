@@ -14,6 +14,7 @@ return static function (ContainerConfigurator $container): void {
         ->set('app.redis_dsn', env('MESSENGER_TRANSPORT_DSN'))
         ->set('app.user_job_lock_ttl', env('int:USER_JOB_LOCK_TTL'))
         ->set('app.ytdlp_timeout', env('int:YTDLP_TIMEOUT'))
+        ->set('app.temp_file_ttl', env('int:TEMP_FILE_TTL'))
         ->set('app.subtitle_temp_dir', env('APP_SUBTITLE_TEMP_DIR'))
         ->set('app.ytdlp_bin', env('YTDLP_BIN'));
 
@@ -28,7 +29,8 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$userJobLockTtl', '%app.user_job_lock_ttl%')
         ->bind('$subtitleTempDir', '%app.subtitle_temp_dir%')
         ->bind('$ytdlpBin', '%app.ytdlp_bin%')
-        ->bind('$processTimeoutSeconds', '%app.ytdlp_timeout%');
+        ->bind('$processTimeoutSeconds', '%app.ytdlp_timeout%')
+        ->bind('$tempFileTtl', '%app.temp_file_ttl%');
 
     $services->load('App\\', '../src/')
         ->exclude('../src/{DependencyInjection,Entity,Tests,Kernel.php}');

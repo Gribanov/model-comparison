@@ -47,6 +47,8 @@ docker compose logs -f worker
 
 The worker downloads subtitles with `yt-dlp`, first trying regular subtitles and then auto-generated subtitles if needed. After a successful Telegram upload, the temporary `.srt` file and its job directory are deleted.
 
+The hourly cleanup scheduler runs in a dedicated Docker container and executes `app:subtitle-temp:cleanup` once per hour against the same mounted temp volume.
+
 ## Telegram Webhook
 
 Synchronize Telegram's registered webhook from inside the `app` container:
@@ -82,6 +84,18 @@ Shorts, playlists, channels, and non-YouTube URLs are rejected.
 
 Telegram must be able to reach the webhook URL over HTTPS. For local development, point `TELEGRAM_WEBHOOK_BASE_URL` at a public tunnel or test host, then run the sync command again inside Docker.
 
+To run the cleanup manually inside Docker:
+
+```bash
+docker compose exec app php bin/console app:subtitle-temp:cleanup
+```
+
+To start the hourly scheduler container:
+
+```bash
+docker compose up -d scheduler
+```
+
 ## Environment
 
 The project ships with example values in `.env` for:
@@ -97,3 +111,5 @@ The project ships with example values in `.env` for:
 - `APP_SUBTITLE_TEMP_DIR`
 
 The subtitle temp directory is resolved inside the container and defaults to `/app/var/subtitles`.
+
+Temporary leftovers are cleaned up once per hour by a dedicated scheduler container that runs `app:subtitle-temp:cleanup` inside Docker.

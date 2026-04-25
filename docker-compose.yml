@@ -48,7 +48,28 @@ services:
     depends_on:
       - redis
 
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - app_vendor:/app/vendor
+      - app_var:/app/var
+    command:
+      [
+        "sh",
+        "-lc",
+        "while true; do php bin/console app:subtitle-temp:cleanup; sleep 3600; done",
+      ]
+    restart: unless-stopped
+    depends_on:
+      - redis
+
 volumes:
   app_vendor:
   app_var:
-
