@@ -43,8 +43,10 @@ final class DownloadSubtitlesHandler
             ]);
             $this->safeSendMessage($message->chatId, self::NO_SUBTITLES_MESSAGE);
         } catch (\Throwable $exception) {
-            $this->logger->error('Subtitle download or Telegram upload failed.', [
+            $this->logger->error('Subtitle download or Telegram upload failed. youtube_url="{youtube_url}" telegram_user_id="{telegram_user_id}" chat_id="{chat_id}" exception="{exception_class}: {exception_message}"', [
                 'exception' => $exception,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
                 'telegram_user_id' => $message->telegramUserId,
                 'chat_id' => $message->chatId,
                 'youtube_url' => $message->youtubeUrl,
@@ -65,8 +67,10 @@ final class DownloadSubtitlesHandler
         try {
             $this->telegramBotClient->sendMessage($chatId, $text);
         } catch (TelegramApiException $exception) {
-            $this->logger->error('Failed to send Telegram status/error message.', [
+            $this->logger->error('Failed to send Telegram status/error message. chat_id="{chat_id}" exception="{exception_class}: {exception_message}"', [
                 'exception' => $exception,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
                 'chat_id' => $chatId,
             ]);
         }
