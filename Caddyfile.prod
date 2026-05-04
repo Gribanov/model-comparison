@@ -1,0 +1,9 @@
+{
+    email {$CADDY_EMAIL}
+}
+
+# Set DOMAIN in the environment (recommended) or replace with your hostname.
+{$DOMAIN} {
+    encode gzip zstd
+    reverse_proxy app:8000
+}

@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_UID: 1000
+        APP_GID: 1000
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - app_var:/app/var
+    expose:
+      - "8000"
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - app
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  worker:
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - app_var:/app/var
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv"]
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  scheduler:
+    image: model-comparison-app:latest
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - app_var:/app/var
+    command:
+      [
+        "sh",
+        "-lc",
+        "while true; do php bin/console app:subtitle-temp:cleanup || true; sleep 3600; done",
+      ]
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+volumes:
+  app_var:
+  redis_data:
+  caddy_data:
+  caddy_config:
