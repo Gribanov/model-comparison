@@ -8,5 +8,10 @@ final readonly class TelegramWebhookInfo
         public string $url,
     ) {
     }
+
+    public function url(): string
+    {
+        return $this->url;
+    }
 }
 

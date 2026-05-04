@@ -115,7 +115,7 @@ final class BotDiagnosticsService
         }
 
         try {
-            $current = $this->telegramBotClient->getWebhookInfo()->url();
+            $current = $this->telegramBotClient->getWebhookInfo()->url;
 
             $result->addCheck(
                 'Webhook registration',
