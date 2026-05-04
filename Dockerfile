@@ -38,7 +38,7 @@ RUN curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp 
 
 WORKDIR /app
 
-COPY --chown=app:app composer.json ./
+COPY --chown=app:app composer.json composer.lock ./
 RUN composer install --no-interaction --no-progress --prefer-dist
 
 COPY --chown=app:app . .

@@ -327,3 +327,5 @@ Notes for VPS deployment:
 - `docker-compose.prod.yml` exposes Caddy on ports `80/443` and expects `DOMAIN` and `CADDY_EMAIL` in `.env`.
 - On a public VPS, the webhook URL must be reachable over HTTPS.
 - After deployment, run `app:bot:diagnostics` before syncing the webhook.
+- To see full exception context in production logs, tail the app container logs:
+  - `docker compose -f docker-compose.prod.yml logs -f --tail=300 app`
