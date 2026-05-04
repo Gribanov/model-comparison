@@ -35,6 +35,10 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$tempFileTtl', '%app.temp_file_ttl%')
         ->bind('$checkRemoteWebhook', '%app.bot_diagnostics_check_remote_webhook%');
 
+    // Ensure controllers are registered as services and can be fetched by the controller resolver.
+    $services->load('App\\Controller\\', '../src/Controller/')
+        ->tag('controller.service_arguments');
+
     $services->load('App\\', '../src/')
-        ->exclude('../src/{DependencyInjection,Entity,Tests,Kernel.php}');
+        ->exclude('../src/{Controller,DependencyInjection,Entity,Tests,Kernel.php}');
 };
