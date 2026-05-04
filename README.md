@@ -255,16 +255,60 @@ Queue flow verification usually looks like this:
 
 The project is designed to be deployed on a VPS over SSH with Docker installed.
 
-Typical deployment flow:
+Production deployment uses `docker-compose.prod.yml` (no source bind-mounts, persistent Redis and app `var/` volumes, and Caddy on ports 80/443).
+
+Prereqs:
+
+- Point a DNS record (e.g. `bot.example.com`) at your VPS.
+- Open inbound ports `80` and `443` in the VPS firewall / security group.
+- Configure the host firewall (example with UFW below).
+- Create or update `.env` on the server, including at least:
+  - `APP_ENV=prod`
+  - `APP_DEBUG=0`
+  - `APP_SECRET=<random>`
+  - `REDIS_PASSWORD=<strong password>`
+  - `TELEGRAM_BOT_TOKEN=...`
+  - `TELEGRAM_WEBHOOK_BASE_URL=https://bot.example.com`
+  - `TELEGRAM_WEBHOOK_SECRET=<random>`
+  - `DOMAIN=bot.example.com`
+  - `CADDY_EMAIL=admin@example.com`
+
+UFW firewall setup (Ubuntu/Debian):
+
+```bash
+# install if needed
+sudo apt-get update
+sudo apt-get install -y ufw
+
+# allow SSH first (replace 22 if you use a non-standard SSH port)
+sudo ufw allow OpenSSH
+
+# allow web traffic for Caddy (ports 80/443)
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+
+# enable firewall
+sudo ufw enable
+
+# verify rules
+sudo ufw status verbose
+```
+
+Notes:
+
+- Do NOT open Redis (`6379`) to the internet; this stack only needs Redis on the Docker network.
+- If you run SSH on a custom port, allow that port instead of `OpenSSH`.
+
+Typical production deployment flow:
 
 ```bash
 ssh deploy@your-server
 git clone <your-repo-url> model-comparison
 cd model-comparison
 # create or update .env on the server
-docker compose up -d --build
-docker compose exec app php bin/console app:bot:diagnostics
-docker compose exec app php bin/console app:telegram:webhook:sync
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec app php bin/console app:bot:diagnostics
+docker compose -f docker-compose.prod.yml exec app php bin/console app:telegram:webhook:sync
 ```
 
 If you redeploy after code changes:
@@ -273,13 +317,13 @@ If you redeploy after code changes:
 ssh deploy@your-server
 cd model-comparison
 git pull
-docker compose up -d --build
-docker compose exec app php bin/console app:bot:diagnostics
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec app php bin/console app:bot:diagnostics
 ```
 
 Notes for VPS deployment:
 
-- The default compose file exposes Caddy on port `8080` for local development.
+- The default `docker-compose.yml` exposes Caddy on port `8080` for local development.
+- `docker-compose.prod.yml` exposes Caddy on ports `80/443` and expects `DOMAIN` and `CADDY_EMAIL` in `.env`.
 - On a public VPS, the webhook URL must be reachable over HTTPS.
-- If you want to serve the bot directly, adjust the Caddy port mapping or place the container behind an existing reverse proxy.
 - After deployment, run `app:bot:diagnostics` before syncing the webhook.
