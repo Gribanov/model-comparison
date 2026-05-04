@@ -43,7 +43,7 @@ RUN composer install --no-interaction --no-progress --prefer-dist
 
 COPY --chown=app:app . .
 
-RUN mkdir -p /app/var/subtitles \
+RUN mkdir -p /app/var/log /app/var/subtitles /app/var/subtitles_tmp \
     && chmod +x /app/bin/console \
     && chown -R app:app /app/var /app/vendor
 

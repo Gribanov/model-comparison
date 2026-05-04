@@ -14,7 +14,7 @@ services:
       - app_var:/app/var
     expose:
       - "8000"
-    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    command: ["sh", "-lc", "mkdir -p var/log && touch \"var/log/${APP_ENV}.log\" && exec php -S 0.0.0.0:8000 -t public"]
     restart: unless-stopped
     depends_on:
       - redis
@@ -48,7 +48,7 @@ services:
       - .env
     volumes:
       - app_var:/app/var
-    command: ["php", "bin/console", "messenger:consume", "async", "-vv"]
+    command: ["sh", "-lc", "mkdir -p var/log && touch \"var/log/${APP_ENV}.log\" && exec php bin/console messenger:consume async -vv"]
     restart: unless-stopped
     depends_on:
       - redis
@@ -64,7 +64,7 @@ services:
       [
         "sh",
         "-lc",
-        "while true; do php bin/console app:subtitle-temp:cleanup || true; sleep 3600; done",
+        "mkdir -p var/log && touch \"var/log/${APP_ENV}.log\"; while true; do php bin/console app:subtitle-temp:cleanup || true; sleep 3600; done",
       ]
     restart: unless-stopped
     depends_on:

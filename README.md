@@ -330,4 +330,4 @@ Notes for VPS deployment:
 - To see full exception context in production logs, tail the app container logs:
   - `docker compose -f docker-compose.prod.yml logs -f --tail=300 app`
 - Full structured context is also written to a file inside the app container:
-  - `docker compose -f docker-compose.prod.yml exec app sh -lc 'tail -n 300 var/log/prod.log'`
+  - `docker compose -f docker-compose.prod.yml exec app sh -lc 'tail -n 300 var/log/${APP_ENV}.log'`
