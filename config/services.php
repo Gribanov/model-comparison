@@ -35,6 +35,12 @@ return static function (ContainerConfigurator $container): void {
         ->bind('$tempFileTtl', '%app.temp_file_ttl%')
         ->bind('$checkRemoteWebhook', '%app.bot_diagnostics_check_remote_webhook%');
 
+    $services->set('app.monolog.formatter.stderr', \Monolog\Formatter\LineFormatter::class)
+        ->args(["[%%datetime%%] %%level_name%%: %%message%%\n", null, true, true]);
+
+    $services->set('app.monolog.formatter.file', \Monolog\Formatter\LineFormatter::class)
+        ->args(["[%%datetime%%] %%channel%%.%%level_name%%: %%message%% %%context%% %%extra%%\n", null, true, true]);
+
     // Ensure controllers are registered as services and can be fetched by the controller resolver.
     $services->load('App\\Controller\\', '../src/Controller/')
         ->tag('controller.service_arguments');
