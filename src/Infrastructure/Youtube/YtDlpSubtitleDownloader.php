@@ -76,6 +76,7 @@ class YtDlpSubtitleDownloader
     {
         return [
             $this->ytdlpBin,
+            '--js-runtimes', 'deno',
             '--skip-download',
             '--paths', $workspace,
             '-o', '%(id)s.%(ext)s',

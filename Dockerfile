@@ -36,6 +36,12 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 RUN curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod +x /usr/local/bin/yt-dlp
 
+# YouTube extraction increasingly requires a JavaScript runtime. Install Deno (supported by yt-dlp).
+RUN curl -fsSL https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -o /tmp/deno.zip \
+    && unzip /tmp/deno.zip -d /usr/local/bin \
+    && chmod +x /usr/local/bin/deno \
+    && rm -f /tmp/deno.zip
+
 WORKDIR /app
 
 COPY --chown=app:app composer.json composer.lock ./
