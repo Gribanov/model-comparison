@@ -15,9 +15,13 @@ class Kernel extends BaseKernel
 
     public function registerBundles(): iterable
     {
-        return [
-            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-        ];
+        $contents = require $this->getProjectDir().'/config/bundles.php';
+
+        foreach ($contents as $class => $environments) {
+            if (($environments[$this->environment] ?? $environments['all'] ?? false) === true) {
+                yield new $class();
+            }
+        }
     }
 
     protected function configureContainer(ContainerConfigurator $container, LoaderInterface $loader): void
