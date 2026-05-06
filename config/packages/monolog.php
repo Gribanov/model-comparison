@@ -12,7 +12,8 @@ return App::config([
                 'level' => 'error',
                 'formatter' => 'monolog.formatter.line',
                 'formatter_options' => [
-                    'format' => "[%datetime%] %level_name%: %message%\n",
+                    // Escape `%...%` because Symfony treats it as a container parameter placeholder.
+                    'format' => "[%%datetime%%] %%level_name%%: %%message%%\n",
                     'include_stacktraces' => false,
                     'ignore_empty_context_and_extra' => true,
                 ],
@@ -25,11 +26,10 @@ return App::config([
                 'level' => 'info',
                 'formatter' => 'monolog.formatter.line',
                 'formatter_options' => [
-                    'format' => "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n",
+                    'format' => "[%%datetime%%] %%channel%%.%%level_name%%: %%message%% %%context%% %%extra%%\n",
                     'include_stacktraces' => true,
                 ],
             ],
         ],
     ],
 ]);
-
